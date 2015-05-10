@@ -1,5 +1,8 @@
 package com.jessespalding;
 
+import se.walkercrou.places.GooglePlaces;
+import se.walkercrou.places.Place;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -45,6 +48,9 @@ public class TourCatGUI extends JFrame{
 
     static DefaultListModel<Show> showsModel = new DefaultListModel<Show>();
 
+    GooglePlaces client = new GooglePlaces("AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
+
+
     public TourCatGUI() throws IOException {
         super("TourCat Shows");
         setContentPane(rootPanel);
@@ -52,8 +58,8 @@ public class TourCatGUI extends JFrame{
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
 
-        addNewShowButton.addActionListener(new ActionListener() {
-            @Override
+                    addNewShowButton.addActionListener(new ActionListener() {
+                @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     NewShowGUI newShowGUI = new NewShowGUI();
@@ -90,27 +96,27 @@ public class TourCatGUI extends JFrame{
 
                 try {
                     String date = showsModel.getElementAt(showId).getShowDate().toString();
-                    String venueName = showsModel.getElementAt(showId).getVenueName().toString();
-                    String venueAddress = showsModel.getElementAt(showId).getStreetName().toString();
-                    String venueCity = showsModel.getElementAt(showId).getCityName().toString();
-                    String venueState = showsModel.getElementAt(showId).getStateName().toString();
+                    final String venueName = showsModel.getElementAt(showId).getVenueName().toString();
+                    final String venueAddress = showsModel.getElementAt(showId).getStreetName().toString();
+                    final String venueCity = showsModel.getElementAt(showId).getCityName().toString();
+                    final String venueState = showsModel.getElementAt(showId).getStateName().toString();
                     int venueSoldInt = showsModel.getElementAt(showId).getSoldTickets();
                     String venueSold = Integer.toString(venueSoldInt);
                     venueDateLabel.setText(date);
                     venueNameLabel.setText(venueName);
                     venueCityLabel.setText(venueCity + ", " + venueState);
                     soldTicketsLabel.setText("Tickets sold: " + venueSold);
-
-                    String streetPlus = venueAddress.replace(' ', '+');
-                    String cityPlus = venueCity.replace(' ', '+');
-                    String statePlus = venueState.replace(' ', '+');
-                    final String venueFullAddress = streetPlus + "+" + cityPlus + "+" + statePlus;
                     revalidate();
                     repaint();
                     directionsButton.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            openDirections("https://maps.google.com?saddr=Current+Location&daddr=" + venueFullAddress);
+                            openDirections("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
+                                    "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
+//                            openDirections("https://maps.google.com?saddr=Current+Location&daddr=" +
+//                                    "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
+                            System.out.println("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
+                                    "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
                         }
                     });
                 } catch (IndexOutOfBoundsException iob) {
@@ -119,6 +125,8 @@ public class TourCatGUI extends JFrame{
 
             }
         });
+
+        GooglePlaces places = new GooglePlaces("AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
 
         nextVenueButton.addActionListener(new ActionListener() {
             @Override
@@ -153,7 +161,7 @@ public class TourCatGUI extends JFrame{
 
     public void displayShow(int showId) {
         String date = showsModel.getElementAt(showId).getShowDate().toString();
-        String venueName = showsModel.getElementAt(showId).getVenueName().toString();
+        final String venueName = showsModel.getElementAt(showId).getVenueName().toString();
         final String venueAddress = showsModel.getElementAt(showId).getStreetName().toString();
         final String venueCity = showsModel.getElementAt(showId).getCityName().toString();
         final String venueState = showsModel.getElementAt(showId).getStateName().toString();
@@ -183,10 +191,10 @@ public class TourCatGUI extends JFrame{
 
 
         // url address creator
-        String placeUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=" + plusSeparate(venueName) +
-                "+" + searchAddress(venueAddress, venueCity, venueState) + "&type=establishment" +
-                "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs";
-        System.out.println(placeUrl);
+//        String placeUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=" + plusSeparate(venueName) +
+//                "+" + searchAddress(venueName, venueAddress, venueCity, venueState) + "&type=establishment" +
+//                "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs";
+//        System.out.println(placeUrl);
 
 
 
@@ -199,7 +207,10 @@ public class TourCatGUI extends JFrame{
         directionsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openDirections("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState));
+                openDirections("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
+                        "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
+                System.out.println("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
+                        "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
             }
         });
     }

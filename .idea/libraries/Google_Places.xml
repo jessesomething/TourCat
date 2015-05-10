@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Google Places">
+    <CLASSES />
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/Desktop/google-places-api-java-master.zip!/google-places-api-java-master/src/main/java" />
+      <root url="jar://$USER_HOME$/Desktop/google-places-api-java-master.zip!/google-places-api-java-master/src/test/java" />
+    </SOURCES>
+  </library>
+</component>

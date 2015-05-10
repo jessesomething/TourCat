@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="8" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="576" height="311"/>
+      <xy x="20" y="20" width="576" height="301"/>
     </constraints>
     <properties/>
     <border type="etched" title="TourCat">
@@ -132,22 +132,6 @@
         </constraints>
         <properties/>
       </component>
-      <component id="f3019" class="javax.swing.JButton" binding="stockButton">
-        <constraints>
-          <grid row="5" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Stock Item(s)"/>
-        </properties>
-      </component>
-      <component id="15498" class="javax.swing.JButton" binding="editMerchButton">
-        <constraints>
-          <grid row="6" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Add/Edit Merchandise..."/>
-        </properties>
-      </component>
       <component id="e9290" class="javax.swing.JButton" binding="refreshButton" default-binding="true">
         <constraints>
           <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -162,6 +146,22 @@
         </constraints>
         <properties>
           <text value="Next Show:"/>
+        </properties>
+      </component>
+      <component id="f3019" class="javax.swing.JButton" binding="stockButton">
+        <constraints>
+          <grid row="4" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Stock Item(s)"/>
+        </properties>
+      </component>
+      <component id="15498" class="javax.swing.JButton" binding="editMerchButton">
+        <constraints>
+          <grid row="5" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Add/Edit Merchandise..."/>
         </properties>
       </component>
     </children>
