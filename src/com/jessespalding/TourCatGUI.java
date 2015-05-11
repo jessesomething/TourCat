@@ -38,6 +38,8 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
     private JLabel nextShowDateLabel;
     private JButton refreshButton;
     private JComboBox sizeComboBox;
+    private JComboBox comboBox1;
+    private JLabel itemPriceLabel;
     static JFrame newEventFrame;
 
     private JList<Show> showJList;
@@ -62,6 +64,8 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
     private static final String USER = "username";
     private static final String PASS = "password";
 
+    private String directionsUrl = "";
+
     public static Integer getMerchId() {
         return merchId;
     }
@@ -78,10 +82,6 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
     public TourCatGUI() throws IOException {
         super("TourCat Shows");
         setContentPane(rootPanel);
-
-        JTabbedPane merchPane = new JTabbedPane();
-        this.
-
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
@@ -168,6 +168,13 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
                 refreshInv();
             }
         });
+
+        directionsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openDirections(directionsUrl);
+            }
+        });
     }
 
     private void createUIComponents() {
@@ -186,6 +193,9 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
         TourCatGUI.this.venueCityLabel.setText(venueCity + ", " + venueState);
         TourCatGUI.this.soldTicketsLabel.setText("Tickets sold: " + venueSold);
 
+        directionsUrl = "https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
+                "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs";
+
         try {
             String nextDate = showsModel.getElementAt(showId+1).getShowDate().toString();
             String nextVenueName = showsModel.getElementAt(showId+1).getVenueName().toString();
@@ -201,16 +211,6 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
 
         revalidate();
         repaint();
-
-        directionsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openDirections("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
-                        "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
-                System.out.println("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
-                        "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
-            }
-        });
     }
 
     public void refreshInv() {
@@ -377,17 +377,8 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
             soldTicketsLabel.setText("Tickets sold: " + venueSold);
             revalidate();
             repaint();
-            directionsButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    openDirections("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
-                            "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
-//                            openDirections("https://maps.google.com?saddr=Current+Location&daddr=" +
-//                                    "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
-                    System.out.println("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
-                            "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
-                }
-            });
+            directionsUrl = "https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
+                    "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs";
         } catch (IndexOutOfBoundsException iob) {
             System.out.println("No shows to display");
         }
