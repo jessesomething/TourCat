@@ -5,12 +5,16 @@ import se.walkercrou.places.Place;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
 
 /**
  * Created by Jesse on 4/23/2015.
@@ -33,6 +37,7 @@ public class TourCatGUI extends JFrame{
     private JLabel nextShowVenueLabel;
     private JLabel nextShowDateLabel;
     private JButton refreshButton;
+    private JComboBox sizeComboBox;
     static JFrame newEventFrame;
 
     private JList<Show> showJList;
@@ -50,6 +55,24 @@ public class TourCatGUI extends JFrame{
 
     GooglePlaces client = new GooglePlaces("AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
 
+    private static String driver = "org.apache.derby.jdbc.EmbeddedDriver";
+    private static String protocol = "jdbc:derby:";
+    private static String dbName = "SalesDB";
+
+    private static final String USER = "username";
+    private static final String PASS = "password";
+
+    public static Integer getMerchId() {
+        return merchId;
+    }
+
+    public static void setMerchId(Integer merchId) {
+        TourCatGUI.merchId = merchId;
+    }
+
+    private static Integer merchId = 0;
+
+    private HashMap<String, String> merchList = new HashMap<String, String>();
 
     public TourCatGUI() throws IOException {
         super("TourCat Shows");
@@ -58,8 +81,85 @@ public class TourCatGUI extends JFrame{
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
 
-                    addNewShowButton.addActionListener(new ActionListener() {
-                @Override
+        Statement statement = null;
+        Connection conn = null;
+        ResultSet rs = null;
+        PreparedStatement psInsert = null;
+
+        try {
+            Class.forName(driver);
+            conn = DriverManager.getConnection(protocol + dbName + ";create=true;", USER, PASS);
+            statement = conn.createStatement();
+
+            String fetchMerch = "SELECT * FROM Merchandise";
+            rs = statement.executeQuery(fetchMerch);
+
+            while (rs.next()) {
+                String kinds = rs.getString("Kinds");
+                String desc = rs.getString("Description");
+                String size = rs.getString("Sizes");
+                String price = rs.getString("Price");
+                String priceShort = "";
+                for (int i = 0; i < price.length(); i++) {
+                    String letter = price.valueOf(i);
+                    if (letter.equals(".")){
+                    } else {
+                        priceShort = priceShort + letter;
+                    }
+                }
+                System.out.println(priceShort);
+                int qty = rs.getInt("Quantity");
+                merchComboBox.addItem(kinds + " - " + desc + " @ $" + price);
+                sizeComboBox.addItem(size);
+            }
+
+        } catch (ClassNotFoundException cnf) {
+            System.out.println("Class not found");
+        } catch (SQLException se) {
+            System.out.println("SQL Exception erro");
+            se.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                    System.out.println("Result set is closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+            try {
+                if (statement != null) {
+                    statement.close();
+                    System.out.println("Statement closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+            try {
+                if (psInsert != null) {
+                    psInsert.close();
+                    System.out.println("Prepared statement closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+            try {
+                // If connection is null and finished, gives message
+                if (conn != null) {
+                    conn.close();
+                    System.out.println("Database connection is closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+        }
+
+        addNewShowButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     NewShowGUI newShowGUI = new NewShowGUI();
@@ -90,43 +190,9 @@ public class TourCatGUI extends JFrame{
 
         refreshButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (noShows) {
-                    System.out.println("No shows in database");
-                }
-
-                try {
-                    String date = showsModel.getElementAt(showId).getShowDate().toString();
-                    final String venueName = showsModel.getElementAt(showId).getVenueName().toString();
-                    final String venueAddress = showsModel.getElementAt(showId).getStreetName().toString();
-                    final String venueCity = showsModel.getElementAt(showId).getCityName().toString();
-                    final String venueState = showsModel.getElementAt(showId).getStateName().toString();
-                    int venueSoldInt = showsModel.getElementAt(showId).getSoldTickets();
-                    String venueSold = Integer.toString(venueSoldInt);
-                    venueDateLabel.setText(date);
-                    venueNameLabel.setText(venueName);
-                    venueCityLabel.setText(venueCity + ", " + venueState);
-                    soldTicketsLabel.setText("Tickets sold: " + venueSold);
-                    revalidate();
-                    repaint();
-                    directionsButton.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            openDirections("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
-                                    "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
-//                            openDirections("https://maps.google.com?saddr=Current+Location&daddr=" +
-//                                    "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
-                            System.out.println("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
-                                    "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
-                        }
-                    });
-                } catch (IndexOutOfBoundsException iob) {
-                    System.out.println("No shows to display");
-                }
-
+                refreshMain();
             }
         });
-
-        GooglePlaces places = new GooglePlaces("AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
 
         nextVenueButton.addActionListener(new ActionListener() {
             @Override
@@ -153,10 +219,24 @@ public class TourCatGUI extends JFrame{
                 }
             }
         });
+        merchComboBox.addItemListener(new ItemListener() {
+            @Override
+            //todo
+            public void itemStateChanged(ItemEvent e) {
+
+            }
+        });
+
+        rootPanel.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                super.focusGained(e);
+                refreshMain();
+            }
+        });
     }
 
     private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 
     public void displayShow(int showId) {
@@ -178,7 +258,6 @@ public class TourCatGUI extends JFrame{
             TourCatGUI.this.nextShowDateLabel.setText(nextDate);
             TourCatGUI.this.nextShowVenueLabel.setText(nextVenueName);
         } catch (IndexOutOfBoundsException iob) {
-            iob.printStackTrace();
             System.out.println("No more shows do display");
             String nextDate = "None Scheduled";
             String nextVenueName = "";
@@ -189,21 +268,6 @@ public class TourCatGUI extends JFrame{
         revalidate();
         repaint();
 
-
-        // url address creator
-//        String placeUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=" + plusSeparate(venueName) +
-//                "+" + searchAddress(venueName, venueAddress, venueCity, venueState) + "&type=establishment" +
-//                "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs";
-//        System.out.println(placeUrl);
-
-
-
-//        String streetPlus = venueAddress.replace(' ', '+');
-//        String cityPlus = venueCity.replace(' ', '+');
-//        String statePlus = venueState.replace(' ', '+');
-//        String venueFullAddress = streetPlus + "+" + cityPlus + "+" + statePlus;
-        revalidate();
-        repaint();
         directionsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -213,6 +277,41 @@ public class TourCatGUI extends JFrame{
                         "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
             }
         });
+    }
+
+    public void refreshMain() {
+        if (noShows) {
+            System.out.println("No shows in database");
+        }
+
+        try {
+            String date = showsModel.getElementAt(showId).getShowDate().toString();
+            final String venueName = showsModel.getElementAt(showId).getVenueName().toString();
+            final String venueAddress = showsModel.getElementAt(showId).getStreetName().toString();
+            final String venueCity = showsModel.getElementAt(showId).getCityName().toString();
+            final String venueState = showsModel.getElementAt(showId).getStateName().toString();
+            int venueSoldInt = showsModel.getElementAt(showId).getSoldTickets();
+            String venueSold = Integer.toString(venueSoldInt);
+            venueDateLabel.setText(date);
+            venueNameLabel.setText(venueName);
+            venueCityLabel.setText(venueCity + ", " + venueState);
+            soldTicketsLabel.setText("Tickets sold: " + venueSold);
+            revalidate();
+            repaint();
+            directionsButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    openDirections("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
+                            "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
+//                            openDirections("https://maps.google.com?saddr=Current+Location&daddr=" +
+//                                    "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
+                    System.out.println("https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
+                            "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs");
+                }
+            });
+        } catch (IndexOutOfBoundsException iob) {
+            System.out.println("No shows to display");
+        }
     }
 
     public static String searchAddress(String street, String city, String state) {

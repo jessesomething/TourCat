@@ -53,7 +53,7 @@ public class NewShowGUI extends JFrame {
     private JButton startOverButton;
     private JButton nextSuggestionButton;
 
-    DateFormat format = new SimpleDateFormat("mm/dd/yyyy", Locale.ENGLISH);
+    DateFormat format = new SimpleDateFormat("mm/dd/yyyyh:mma", Locale.ENGLISH);
     String dateString = "";
     String time = "";
     String venue = "";
@@ -73,21 +73,7 @@ public class NewShowGUI extends JFrame {
     int merchFee = 0;
     int otherFee = 0;
 
-    private boolean missingField = false;
-
     private int suggestId = 0;
-    private boolean isCorrect = false;
-
-    public boolean isSaved() {
-        return saved;
-    }
-
-    public void setSaved(boolean saved) {
-        this.saved = saved;
-    }
-
-    private boolean saved = false;
-
 
     public NewShowGUI() throws IOException {
         super("TourCat Shows");
@@ -128,107 +114,13 @@ public class NewShowGUI extends JFrame {
             timeComboBox.addItem(times[i]);
         }
 
-        saveAndExitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dateString = dateTextField.getText();
-                time = timeComboBox.getSelectedItem().toString();
-                contact = contactTextField.getText();
-                venue = venueTextField.getText();
-                address = addressTextField.getText();
-                city = cityTextField.getText();
-
-                if (stateSuggestTextField.equals("")){
-                    state = stateComboBox.getSelectedItem().toString();
-                } else {
-                    state = stateSuggestTextField.getText();
-                }
-
-                priceString = priceTextField.getText();
-                if (!priceString.equals("")) {
-                    price = Integer.parseInt(priceString);
-                }
-                ticketFeeString = ticketFeeTextField.getText();
-                if (!ticketFeeString.equals("")) {
-                    ticketFee = Integer.parseInt(ticketFeeString);
-                }
-                merchFeeString = merchFeeTextField.getText();
-                if (!merchFeeString.equals("")) {
-                    merchFee = Integer.parseInt(merchFeeString);
-                }
-                otherFeeString = otherFeeTextField.getText();
-                if (!otherFeeString.equals("")) {
-                    otherFee = Integer.parseInt(otherFeeString);
-                }
-
-                try {
-
-                    try {
-//                        String state = getSpaceSplit(stateSuggestTextField.getText(), 0);
-                        Date date = format.parse(dateString);
-                        Show newShow = new Show(date, time, venue, address, city, state,
-                                contact, sold, price, ticketFee, merchFee, otherFee);
-                        addShow(TourCatGUI.showsModel, newShow);
-                        TourCatGUI.setNoShows(false);
-                        dispose();
-
-                    } catch (ParseException pe) {
-                        System.out.println("Error parsing date");
-                    }
-                    TourCatGUI.setFirstRun(false);
-
-                } catch (ArrayIndexOutOfBoundsException aiob) {
-                    String[] reqFields = {dateString, time, venue, city, state};
-                    LinkedList<JLabel> reqLabels = new LinkedList<JLabel>();
-                    reqLabels.add(dateLabel);
-                    reqLabels.add(timeLabel);
-                    reqLabels.add(venueLabel);
-                    reqLabels.add(cityLabel);
-                    reqLabels.add(stateLabel);
-
-                    for (int i = 0; i < reqFields.length; i++) {
-                        if (reqFields[i].isEmpty() || reqFields[i].equals("")) {
-                            missingLabel.setVisible(true);
-                            missingField = true;
-                            reqLabels.get(i).setForeground(Color.red);
-                        }
-                    }
-                    aiob.printStackTrace();
-                    System.out.println("Didn't enter something");
-                }
-
-            }
-        });
-
         startOverButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                stateComboBox.setVisible(true);
-                stateLabel.setVisible(true);
-                stateSuggestTextField.setVisible(false);
-                stateSuggestLabel.setVisible(false);
-
-                suggestionsButton.setText("Search for Suggestions");
-                saveAndAddButton.setText("Save and Add Another");
-                saveAndExitButton.setText("Save and Exit");
-
-                stateSuggestTextField.setText("");
-                dateTextField.setText("");
-                timeComboBox.setSelectedItem("");
-                venueTextField.setText("");
-                addressTextField.setText("");
-                cityTextField.setText("");
-                stateComboBox.setSelectedItem("");
-                contactTextField.setText("");
-                priceTextField.setText("");
-                soldTicketsTextField.setText("");
-                ticketFeeTextField.setText("");
-                merchFeeTextField.setText("");
-                otherFeeTextField.setText("");
-
-                venuePlaces.clear();
+                resetFields(venuePlaces);
             }
         });
+
         nextSuggestionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -236,7 +128,7 @@ public class NewShowGUI extends JFrame {
                     setSuggestId(suggestId++);
                     suggestPlace(venuePlaces.get(suggestId));
                 } else {
-                    nextSuggestionButton.setText("No more results");
+                    nextSuggestionButton.setVisible(false);
                 }
             }
         });
@@ -264,9 +156,27 @@ public class NewShowGUI extends JFrame {
 
                 suggestPlace(venuePlaces.get(suggestId));
 
-                suggestionsButton.setText("Next Result");
-                saveAndAddButton.setText("Start Over");
-                saveAndExitButton.setText("This is correct");
+                if (suggestId == venuePlaces.size()) {
+                    nextSuggestionButton.setVisible(false);
+                } else {
+                    nextSuggestionButton.setVisible(true);
+                }
+            }
+        });
+
+        saveAndAddButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveVenue();
+                resetFields(venuePlaces);
+            }
+        });
+
+        saveAndExitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveVenue();
+                dispose();
             }
         });
 
@@ -274,7 +184,7 @@ public class NewShowGUI extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
-                JFrame frame = (JFrame)e.getSource();
+                JFrame frame = (JFrame) e.getSource();
 
                 int result = JOptionPane.showConfirmDialog(frame,
                         "Close without saving?",
@@ -299,6 +209,98 @@ public class NewShowGUI extends JFrame {
         stateSuggestTextField.setText(getSpaceSplit(stateZipStr, 0));
         stateSuggestTextField.setVisible(true);
         stateSuggestLabel.setVisible(true);
+    }
+
+    public void saveVenue() {
+        dateString = dateTextField.getText();
+        time = timeComboBox.getSelectedItem().toString();
+        contact = contactTextField.getText();
+        venue = upperCase(venueTextField.getText());
+        address = upperCase(addressTextField.getText());
+        city = upperCase(cityTextField.getText());
+
+        if (stateSuggestTextField.equals("")){
+            state = stateComboBox.getSelectedItem().toString();
+        } else {
+            state = stateSuggestTextField.getText();
+        }
+
+        priceString = priceTextField.getText();
+        if (!priceString.equals("")) {
+            price = Integer.parseInt(priceString);
+        }
+        ticketFeeString = ticketFeeTextField.getText();
+        if (!ticketFeeString.equals("")) {
+            ticketFee = Integer.parseInt(ticketFeeString);
+        }
+        merchFeeString = merchFeeTextField.getText();
+        if (!merchFeeString.equals("")) {
+            merchFee = Integer.parseInt(merchFeeString);
+        }
+        otherFeeString = otherFeeTextField.getText();
+        if (!otherFeeString.equals("")) {
+            otherFee = Integer.parseInt(otherFeeString);
+        }
+
+        try {
+
+            try {
+                Date date = format.parse(dateString + time);
+                Show newShow = new Show(date, time, venue, address, city, state,
+                        contact, sold, price, ticketFee, merchFee, otherFee);
+                addShow(TourCatGUI.showsModel, newShow);
+                TourCatGUI.setNoShows(false);
+            } catch (ParseException pe) {
+                System.out.println("Error parsing date");
+                pe.printStackTrace();
+            }
+            TourCatGUI.setFirstRun(false);
+
+        } catch (ArrayIndexOutOfBoundsException aiob) {
+            String[] reqFields = {dateString, time, venue, city, state};
+            LinkedList<JLabel> reqLabels = new LinkedList<JLabel>();
+            reqLabels.add(dateLabel);
+            reqLabels.add(timeLabel);
+            reqLabels.add(venueLabel);
+            reqLabels.add(cityLabel);
+            reqLabels.add(stateLabel);
+
+            for (int i = 0; i < reqFields.length; i++) {
+                if (reqFields[i].isEmpty() || reqFields[i].equals("")) {
+                    missingLabel.setVisible(true);
+                    reqLabels.get(i).setForeground(Color.red);
+                }
+            }
+            aiob.printStackTrace();
+            System.out.println("Didn't enter something");
+        }
+    }
+
+    public void resetFields(LinkedList<Place> venuePlaces) {
+        stateComboBox.setVisible(true);
+        stateLabel.setVisible(true);
+        stateSuggestTextField.setVisible(false);
+        stateSuggestLabel.setVisible(false);
+
+        suggestionsButton.setText("Search for Suggestions");
+        saveAndAddButton.setText("Save and Add Another");
+        saveAndExitButton.setText("Save and Exit");
+
+        stateSuggestTextField.setText("");
+        dateTextField.setText("");
+        timeComboBox.setSelectedItem("");
+        venueTextField.setText("");
+        addressTextField.setText("");
+        cityTextField.setText("");
+        stateComboBox.setSelectedItem("");
+        contactTextField.setText("");
+        priceTextField.setText("");
+        soldTicketsTextField.setText("");
+        ticketFeeTextField.setText("");
+        merchFeeTextField.setText("");
+        otherFeeTextField.setText("");
+
+        venuePlaces.clear();
     }
 
     private static void addShow(DefaultListModel<Show> shows, Show newShow) {
@@ -334,7 +336,7 @@ public class NewShowGUI extends JFrame {
         }
     }
 
-    private static String upperCase(String words) {
+    public static String upperCase(String words) {
         StringBuffer res = new StringBuffer();
 
         String[] strArr = words.split(" ");

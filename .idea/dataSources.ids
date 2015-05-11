@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="dataSourceStorage">
   <data-source name="Derby -" uuid="6eead4b3-d5cc-488b-854f-ddfd082b0c98">
-    <database-info product="" version="" jdbc-version="" driver-name="" driver-version=""/>
+    <database-info product="Apache Derby" version="10.11.1.1 - (1616546)" jdbc-version="4.2" driver-name="Apache Derby Embedded JDBC Driver" driver-version="10.11.1.1 - (1616546)">
+      <identifier-quote-string>&quot;</identifier-quote-string>
+    </database-info>
+    <case-sensitivity plain-identifiers="upper" quoted-identifiers="exact"/>
     <schema name="APP" catalog=""/>
     <schema name="NULLID" catalog=""/>
     <schema name="SQLJ" catalog=""/>
@@ -13,6 +16,7 @@
     <schema name="SYSIBM" catalog=""/>
     <schema name="SYSPROC" catalog=""/>
     <schema name="SYSSTAT" catalog=""/>
+    <schema name="USERNAME" catalog=""/>
     <table name="SYSALIASES" schema="SYS" catalog="" type="SYSTEM TABLE">
       <column name="ALIASID" sqlType="CHAR" precision="36" scale="0" nullable="false" jdbcType="1"/>
       <column name="ALIAS" sqlType="VARCHAR" precision="128" scale="0" nullable="false" jdbcType="12"/>
@@ -253,6 +257,17 @@
     </table>
     <table name="SYSDUMMY1" schema="SYSIBM" catalog="" type="SYSTEM TABLE">
       <column name="IBMREQD" sqlType="CHAR" precision="1" scale="0" nullable="true" jdbcType="1"/>
+    </table>
+    <table name="MERCHANDISE" schema="USERNAME" catalog="" type="TABLE">
+      <column name="TYPES" sqlType="VARCHAR" precision="15" scale="0" nullable="true" jdbcType="12"/>
+      <column name="KINDS" sqlType="VARCHAR" precision="15" scale="0" nullable="true" jdbcType="12"/>
+      <column name="SIZES" sqlType="VARCHAR" precision="8" scale="0" nullable="true" jdbcType="12"/>
+      <column name="DESCRIPTION" sqlType="VARCHAR" precision="64" scale="0" nullable="true" jdbcType="12"/>
+      <column name="PRICE" sqlType="DOUBLE" precision="52" scale="0" nullable="true" jdbcType="8"/>
+      <column name="QUANTITY" sqlType="INTEGER" precision="10" scale="0" nullable="true" jdbcType="4"/>
+    </table>
+    <table name="SIZES" schema="USERNAME" catalog="" type="TABLE">
+      <column name="SIZES" sqlType="VARCHAR" precision="15" scale="0" nullable="true" jdbcType="12"/>
     </table>
     <procedure name="INSTALL_JAR" schema="SQLJ" catalog="" type="1" remarks="b3JnLmFwYWNoZS5kZXJieS5jYXRhbG9nLlN5c3RlbVByb2NlZHVyZXMuSU5TVEFMTF9KQVI=">
       <prototype>
