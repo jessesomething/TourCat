@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * Created by Jesse on 4/23/2015.
  */
-public class TourCatGUI extends JFrame{
+public class TourCatGUI extends JFrame implements WindowFocusListener{
     private JPanel rootPanel;
     private JButton previousEventButton;
     private JLabel venueDateLabel;
@@ -72,91 +72,22 @@ public class TourCatGUI extends JFrame{
 
     private static Integer merchId = 0;
 
-    private HashMap<String, String> merchList = new HashMap<String, String>();
+    private HashMap<String, String> merchSizeList = new HashMap<String, String>();
+    private HashMap<String, Integer> merchQtyList = new HashMap<String, Integer>();
 
     public TourCatGUI() throws IOException {
         super("TourCat Shows");
         setContentPane(rootPanel);
+
+        JTabbedPane merchPane = new JTabbedPane();
+        this.
+
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
 
-        Statement statement = null;
-        Connection conn = null;
-        ResultSet rs = null;
-        PreparedStatement psInsert = null;
+        refreshInv();
 
-        try {
-            Class.forName(driver);
-            conn = DriverManager.getConnection(protocol + dbName + ";create=true;", USER, PASS);
-            statement = conn.createStatement();
-
-            String fetchMerch = "SELECT * FROM Merchandise";
-            rs = statement.executeQuery(fetchMerch);
-
-            while (rs.next()) {
-                String kinds = rs.getString("Kinds");
-                String desc = rs.getString("Description");
-                String size = rs.getString("Sizes");
-                String price = rs.getString("Price");
-                String priceShort = "";
-                for (int i = 0; i < price.length(); i++) {
-                    String letter = price.valueOf(i);
-                    if (letter.equals(".")){
-                    } else {
-                        priceShort = priceShort + letter;
-                    }
-                }
-                System.out.println(priceShort);
-                int qty = rs.getInt("Quantity");
-                merchComboBox.addItem(kinds + " - " + desc + " @ $" + price);
-                sizeComboBox.addItem(size);
-            }
-
-        } catch (ClassNotFoundException cnf) {
-            System.out.println("Class not found");
-        } catch (SQLException se) {
-            System.out.println("SQL Exception erro");
-            se.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                    System.out.println("Result set is closed");
-                }
-            } catch (SQLException se) {
-                se.printStackTrace();
-            }
-
-            try {
-                if (statement != null) {
-                    statement.close();
-                    System.out.println("Statement closed");
-                }
-            } catch (SQLException se) {
-                se.printStackTrace();
-            }
-
-            try {
-                if (psInsert != null) {
-                    psInsert.close();
-                    System.out.println("Prepared statement closed");
-                }
-            } catch (SQLException se) {
-                se.printStackTrace();
-            }
-
-            try {
-                // If connection is null and finished, gives message
-                if (conn != null) {
-                    conn.close();
-                    System.out.println("Database connection is closed");
-                }
-            } catch (SQLException se) {
-                se.printStackTrace();
-            }
-
-        }
 
         addNewShowButton.addActionListener(new ActionListener() {
             @Override
@@ -223,7 +154,8 @@ public class TourCatGUI extends JFrame{
             @Override
             //todo
             public void itemStateChanged(ItemEvent e) {
-
+                sizeComboBox.removeAllItems();
+                refreshSizes();
             }
         });
 
@@ -231,7 +163,9 @@ public class TourCatGUI extends JFrame{
             @Override
             public void focusGained(FocusEvent e) {
                 super.focusGained(e);
+                sizeComboBox.removeAllItems();
                 refreshMain();
+                refreshInv();
             }
         });
     }
@@ -279,11 +213,156 @@ public class TourCatGUI extends JFrame{
         });
     }
 
+    public void refreshInv() {
+        Statement statement = null;
+        Connection conn = null;
+        ResultSet rs = null;
+        try {
+            merchComboBox.removeAllItems();
+            Class.forName(driver);
+            conn = DriverManager.getConnection(protocol + dbName + ";create=true;", USER, PASS);
+            statement = conn.createStatement();
+            String fetchMerch = "SELECT * FROM Merchandise";
+            rs = statement.executeQuery(fetchMerch);
+
+            while (rs.next()) {
+                String name = rs.getString("ItemName");
+                String kinds = rs.getString("Kinds");
+                String size = rs.getString("Sizes");
+                String price = rs.getString("Price");
+//                for (int i = 0; i < price.length(); i++) {
+//                    String letter = price.valueOf(i);
+//                    if (letter.equals(".")){
+//                    } else {
+//                        priceShort = priceShort + letter;
+//                    }
+//                }
+//                System.out.println(priceShort);
+                int qty = rs.getInt("Quantity");
+                merchComboBox.addItem(kinds + " - " + name + " @ $" + price);
+                merchSizeList.put(name, size);
+//                if (!size.equals("")) {
+//                    sizeComboBox.addItem(size);
+//                } else {
+//
+//                }
+            }
+
+        } catch (ClassNotFoundException cnf) {
+            System.out.println("Class not found");
+        } catch (SQLException se) {
+            System.out.println("No inventory exists");
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                    System.out.println("Result set is closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+            try {
+                if (statement != null) {
+                    statement.close();
+                    System.out.println("Statement closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+//
+//            try {
+//                if (psInsert != null) {
+//                    psInsert.close();
+//                    System.out.println("Prepared statement closed");
+//                }
+//            } catch (SQLException se) {
+//                se.printStackTrace();
+//            }
+
+            try {
+                // If connection is null and finished, gives message
+                if (conn != null) {
+                    conn.close();
+                    System.out.println("Database connection is closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+        }
+    }
+
+    public void refreshSizes() {
+        Statement statement = null;
+        Connection conn = null;
+        ResultSet rs = null;
+//        PreparedStatement psInsert = null;
+
+        try {
+            Class.forName(driver);
+            conn = DriverManager.getConnection(protocol + dbName + ";create=true;", USER, PASS);
+            statement = conn.createStatement();
+
+            String fetchMerch = "SELECT * FROM Merchandise";
+            rs = statement.executeQuery(fetchMerch);
+
+            String merch = merchComboBox.getSelectedItem().toString();
+
+            while (rs.next()) {
+                String name = rs.getString("ItemName");
+                String kinds = rs.getString("Kinds");
+                String price = rs.getString("Price");
+                PreparedStatement ps = conn.prepareStatement("SELECT Sizes FROM Merchandise WHERE ItemName = ?");
+                ps.setString(1, name);
+                String size = rs.getString("Sizes");
+                if (merch == kinds + " - " + name + " @ $" + price || !size.equals("")) {
+                    sizeComboBox.addItem(size);
+                } else {
+
+                }
+            }
+
+        } catch (ClassNotFoundException cnf) {
+            System.out.println("Class not found");
+        } catch (SQLException se) {
+            System.out.println("No inventory exists");
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                    System.out.println("Result set is closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+            try {
+                if (statement != null) {
+                    statement.close();
+                    System.out.println("Statement closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+            try {
+                // If connection is null and finished, gives message
+                if (conn != null) {
+                    conn.close();
+                    System.out.println("Database connection is closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+        }
+    }
+
     public void refreshMain() {
         if (noShows) {
             System.out.println("No shows in database");
         }
-
         try {
             String date = showsModel.getElementAt(showId).getShowDate().toString();
             final String venueName = showsModel.getElementAt(showId).getVenueName().toString();
@@ -333,6 +412,15 @@ public class TourCatGUI extends JFrame{
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void windowGainedFocus(WindowEvent e) {
+        refreshInv();
+        refreshMain();
+    }
+
+    public void windowLostFocus(WindowEvent e) {
+
     }
 
     public static boolean isNoShows() {

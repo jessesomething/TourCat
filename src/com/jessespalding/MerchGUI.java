@@ -187,8 +187,8 @@ public class MerchGUI extends JFrame {
 //                    }
 
                     try {
-                        String createMerchTable = "CREATE TABLE Merchandise (Types VARCHAR(15), Kinds VARCHAR(15), " +
-                                "Sizes VARCHAR(8), Description VARCHAR(64), Price DOUBLE, Quantity int)";
+                        String createMerchTable = "CREATE TABLE Merchandise (ItemName VARCHAR(64), Types VARCHAR(15), Kinds VARCHAR(15), " +
+                                "Sizes VARCHAR(8), Price DOUBLE, Quantity int)";
                         statement.executeUpdate(createMerchTable);
                         System.out.println("Created Merch Table");
                     } catch (SQLException se) {
@@ -206,16 +206,16 @@ public class MerchGUI extends JFrame {
                     String merchInsert = "INSERT INTO Merchandise VALUES ( ? , ? , ? , ? , ?, ? )";
                     psInsert = conn.prepareStatement(merchInsert);
 
-                    psInsert.setString(1, merchType);
-                    psInsert.setString(2, merchKind);
+                    psInsert.setString(1, merchDesc);
+                    psInsert.setString(2, merchType);
+                    psInsert.setString(3, merchKind);
                     try {
                         String merchSizeStr = merchSizeComboBox.getSelectedItem().toString();
-                        psInsert.setString(3, merchSizeStr);
+                        psInsert.setString(4, merchSizeStr);
                     } catch (NullPointerException npe) {
                         String merchSizeStr = "";
-                        psInsert.setString(3, merchSizeStr);
+                        psInsert.setString(4, merchSizeStr);
                     }
-                    psInsert.setString(4, merchDesc);
                     psInsert.setDouble(5, merchPrice);
                     psInsert.setInt(6, merchQty);
 
@@ -227,13 +227,13 @@ public class MerchGUI extends JFrame {
                     rs = statement.executeQuery(fetchMerch);
 
                     while (rs.next()) {
+                        String name = rs.getString("ItemName");
                         String types = rs.getString("Types");
                         String kinds = rs.getString("Kinds");
                         String sizes = rs.getString("Sizes");
-                        String desc = rs.getString("Description");
                         int qty = rs.getInt("Quantity");
                         System.out.println("Type: " + types + "\nKind: " + kinds + "\nSize: " +
-                                sizes + "\nDesc: " + desc + "\nPrice: $" + merchPrice + "\nQuantity: " + qty);
+                                sizes + "\nDesc: " + name + "\nPrice: $" + merchPrice + "\nQuantity: " + qty);
                     }
 
                     String sizeInsert = "INSERT INTO Sizes VALUES ( ? )";
@@ -249,9 +249,17 @@ public class MerchGUI extends JFrame {
                         System.out.println("Size: " + sizes);
                     }
 
-                    rs.close();
+                    if (rs.isClosed()) {
+                        System.out.println("rs closed");
+                    }
 
                     conn.close();
+
+                    psInsert.close();
+
+                    if (conn.isClosed()) {
+                        System.out.println("conn closed");
+                    }
 
                 } catch (ClassNotFoundException cnf) {
                     System.out.println("Class not found");
