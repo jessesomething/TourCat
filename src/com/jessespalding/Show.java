@@ -1,5 +1,6 @@
 package com.jessespalding;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -72,8 +73,10 @@ public class Show {
         this.stateName = stateName;
     }
 
-    public Date getShowDate() {
-        return showDate;
+    public String getShowDate() {
+        SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd hh:mmaa zzz");
+        String dateFormatted = format.format(showDate);
+        return dateFormatted;
     }
 
     public void setShowDate(Date showDate) {

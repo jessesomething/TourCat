@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 
@@ -246,6 +248,7 @@ public class NewShowGUI extends JFrame {
 
             try {
                 Date date = format.parse(dateString + time);
+
                 Show newShow = new Show(date, time, venue, address, city, state,
                         contact, sold, price, ticketFee, merchFee, otherFee);
                 addShow(TourCatGUI.showsModel, newShow);
