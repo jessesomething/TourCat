@@ -178,14 +178,6 @@ public class MerchGUI extends JFrame {
                     conn = DriverManager.getConnection(protocol + dbName + ";create=true;", USER, PASS);
                     statement = conn.createStatement();
 
-//                    try {
-//                        String createTableSQL = "CREATE TABLE Sales (SaleTypes VARCHAR(15)";
-//                        statement.executeUpdate(createTableSQL);
-//                    } catch (SQLException se) {
-//                        System.out.println("Error creating table");
-//                        se.printStackTrace();
-//                    }
-
                     try {
                         String createMerchTable = "CREATE TABLE Merchandise (ItemName VARCHAR(64), Types VARCHAR(15), Kinds VARCHAR(15), " +
                                 "Sizes VARCHAR(8), Price DOUBLE, Quantity int)";

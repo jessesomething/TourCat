@@ -6,12 +6,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -50,12 +52,14 @@ public class NewShowGUI extends JFrame {
     private JTextField stateSuggestTextField;
     private JLabel stateSuggestLabel;
     private JCheckBox outsideUSCheckBox;
-    private JTextField textField1;
-    private JTextField textField2;
+    private JTextField provinceTextField;
+    private JTextField countryTextField;
     private JButton startOverButton;
     private JButton nextSuggestionButton;
 
     DateFormat format = new SimpleDateFormat("mm/dd/yyyyh:mma", Locale.ENGLISH);
+
+
     String dateString = "";
     String time = "";
     String venue = "";
@@ -65,6 +69,8 @@ public class NewShowGUI extends JFrame {
     String contact = "";
     String stateString = "";
     String stateSuggestString = "";
+    String country = "";
+    String soldString = "";
     String priceString = "";
     String ticketFeeString = "";
     String merchFeeString = "";
@@ -78,6 +84,14 @@ public class NewShowGUI extends JFrame {
     private int suggestId = 0;
 
     private boolean saved = false;
+    private boolean dbSaved = false;
+
+    private static String driver = "org.apache.derby.jdbc.EmbeddedDriver";
+    private static String protocol = "jdbc:derby:";
+    private static String dbName = "SalesDB";
+
+    private static final String USER = "username";
+    private static final String PASS = "password";
 
     public NewShowGUI() throws IOException {
         super("TourCat Shows");
@@ -185,6 +199,7 @@ public class NewShowGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 saveVenue();
+//                saveShowDb();
                 if (saved) {
                     dispose();
                 }
@@ -214,6 +229,7 @@ public class NewShowGUI extends JFrame {
         venueTextField.setText(venuePlaceDetails.getName());
         addressTextField.setText(getAddressPart(venuePlaceDetails.getAddress(), 0));
         cityTextField.setText(getAddressPart(venuePlaceDetails.getAddress(), 1));
+        countryTextField.setText(getAddressPart(venuePlaceDetails.getAddress(), 2));
         stateComboBox.setVisible(false);
         stateLabel.setVisible(false);
         String stateZipStr = getAddressPart(venuePlaceDetails.getAddress(), 2);
@@ -258,7 +274,6 @@ public class NewShowGUI extends JFrame {
 
                 try {
                     Date date = format.parse(dateString + time);
-
                     Show newShow = new Show(date, time, venue, address, city, state,
                             contact, sold, price, ticketFee, merchFee, otherFee);
                     addShow(TourCatGUI.showsModel, newShow);
@@ -304,6 +319,177 @@ public class NewShowGUI extends JFrame {
                 }
             }
         }
+
+    }
+
+//    public void saveShowDb() {
+//        dateString = dateTextField.getText();
+//        try {
+//            Date date = format.parse(dateString + time);
+//        } catch (ParseException pe) {
+//            System.out.println("Error parsing date");
+//        }
+//        time = timeComboBox.getSelectedItem().toString();
+//        contact = contactTextField.getText();
+//        venue = upperCase(venueTextField.getText());
+//        address = upperCase(addressTextField.getText());
+//        city = upperCase(cityTextField.getText());
+//
+//        if (stateSuggestTextField.equals(null)){
+//            state = stateComboBox.getSelectedItem().toString();
+//        } else {
+//            state = stateSuggestTextField.getText();
+//        }
+//
+//        if (!countryTextField.equals("")) {
+//            country = countryTextField.getText().toString();
+//        } else {
+//            country = "";
+//        }
+//
+//        soldString = soldTicketsTextField.getText();
+//        if (!soldString.equals("")) {
+//            sold = Integer.parseInt(soldString);
+//        } else {
+//            price = 0;
+//        }
+//
+//        priceString = priceTextField.getText();
+//        if (!priceString.equals("")) {
+//            price = Integer.parseInt(priceString);
+//        } else {
+//            price = 0;
+//        }
+//        ticketFeeString = ticketFeeTextField.getText();
+//        if (!ticketFeeString.equals("")) {
+//            ticketFee = Integer.parseInt(ticketFeeString);
+//        }
+//        merchFeeString = merchFeeTextField.getText();
+//        if (!merchFeeString.equals("")) {
+//            merchFee = Integer.parseInt(merchFeeString);
+//        }
+//        otherFeeString = otherFeeTextField.getText();
+//        if (!otherFeeString.equals("")) {
+//            otherFee = Integer.parseInt(otherFeeString);
+//        }
+//
+//        Statement statement = null;
+//        Connection conn = null;
+//        ResultSet rs = null;
+//        PreparedStatement psInsert = null;
+//
+//        try {
+//            java.sql.Date date = new java.sql.Date(format.getCalendar().getTimeInMillis());
+//            Class.forName(driver);
+//            conn = DriverManager.getConnection(protocol + dbName + ";create=true;", USER, PASS);
+//            statement = conn.createStatement();
+//
+//            try {
+//                String createShowsTable = "CREATE TABLE Shows (ShowDate DATE, VenueName VARCHAR(64), Street VARCHAR(64)," +
+//                        "City VARCHAR(64), State VARCHAR(64), Country VARCHAR(64), SoldTickets INT, " +
+//                        "Price INT, TicketFee INT, MerchFee INT, OtherFee INT)";
+//                statement.executeUpdate(createShowsTable);
+//                System.out.println("Created Shows Table");
+//            } catch (SQLException se) {
+//                System.out.println("Shows table already exists");
+//            }
+//
+//            String showInsert = "INSERT INTO Shows VALUES ( ? , ? , ? , ? ,? , ? , ? , ? , ?, ? , ? )";
+//            psInsert = conn.prepareStatement(showInsert);
+//
+//            psInsert.setDate(1, date);
+//            psInsert.setString(2, venue);
+//            psInsert.setString(3, address);
+//            psInsert.setString(4, city);
+//            psInsert.setString(5, state);
+//            psInsert.setString(6, country);
+//            psInsert.setInt(7, sold);
+//            psInsert.setInt(8, price);
+//            psInsert.setInt(9, ticketFee);
+//            psInsert.setInt(10, merchFee);
+//            psInsert.setInt(11, otherFee);
+//
+//            psInsert.executeUpdate();
+//
+//
+//            System.out.println("Shows in Database: \n");
+//            String fetchMerch = "SELECT * FROM Shows";
+//            rs = statement.executeQuery(fetchMerch);
+//
+//            while (rs.next()) {
+//                String dateStr = rs.getString("ShowDate");
+//                String nameStr = rs.getString("VenueName");
+//                String streetStr = rs.getString("Street");
+//                String cityStr = rs.getString("City");
+//                String stateStr = rs.getString("State");
+//                String countryStr = rs.getString("Country");
+//                String soldStr = String.valueOf(sold);
+//                String priceStr = String.valueOf(price);
+//                String ticketFeeStr = String.valueOf(ticketFee);
+//                String merchFeeStr = String.valueOf(merchFee);
+//                String otherFeeStr = String.valueOf(otherFee);
+//                System.out.println("Date: " + dateStr + "\nName: " + nameStr + "\nStreet: " + streetStr + "\nCity: " +
+//                        cityStr + "\nState " + stateStr + "\nCountry: " + countryStr + "\nSold: " + soldStr + "\nPrice: " +
+//                        priceStr + "\nTicket Fee: " + ticketFeeStr + "\nMerch Fee: " + merchFeeStr + "\nOther Fee: " + otherFeeStr);
+//            }
+//
+//            conn.close();
+//
+//            psInsert.close();
+//
+//            dbSaved = true;
+//
+//            if (conn.isClosed()) {
+//                System.out.println("conn closed");
+//            }
+//
+//        } catch (ClassNotFoundException cnf) {
+//            System.out.println("Class not found");
+//        } catch (SQLException se) {
+//            System.out.println("SQL Exception erro");
+//            se.printStackTrace();
+//        } finally {
+//            try {
+//                if (rs != null) {
+//                    rs.close();
+//                    System.out.println("Result set is closed");
+//                }
+//            } catch (SQLException se) {
+//                se.printStackTrace();
+//            }
+//
+//            try {
+//                if (statement != null) {
+//                    statement.close();
+//                    System.out.println("Statement closed");
+//                }
+//            } catch (SQLException se) {
+//                se.printStackTrace();
+//            }
+//
+//            try {
+//                if (psInsert != null) {
+//                    psInsert.close();
+//                    System.out.println("Prepared statement closed");
+//                }
+//            } catch (SQLException se) {
+//                se.printStackTrace();
+//            }
+//
+//            try {
+//                // If connection is null and finished, gives message
+//                if (conn != null) {
+//                    conn.close();
+//                    System.out.println("Database connection is closed");
+//                }
+//            } catch (SQLException se) {
+//                se.printStackTrace();
+//            }
+//            dispose();
+//        }
+//    }
+
+    public void createShowTable() {
 
     }
 

@@ -11,10 +11,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by Jesse on 4/23/2015.
@@ -78,6 +79,8 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
 
     private static Integer merchId = 0;
 
+    java.sql.Date timeNow = new Date(Calendar.getInstance().getTimeInMillis());
+
     private HashMap<String, String> merchSizeList = new HashMap<String, String>();
     private HashMap<String, Integer> merchQtyList = new HashMap<String, Integer>();
 
@@ -87,6 +90,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
+        setSize(800, 400);
 
         refreshInv();
 
@@ -116,7 +120,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
         while (noShows) {
             // do nothing
             if (noShows = false) {
-                displayShow(showId);
+//                displayShow(showId);
                 break;
             }
         }
@@ -125,6 +129,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
             public void actionPerformed(ActionEvent e) {
                 refreshMain();
                 refreshInv();
+//                currentVenue();
             }
         });
 
@@ -133,7 +138,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
             public void actionPerformed(ActionEvent e) {
                 try {
                     setShowId(showId + 1);
-                    displayShow(showId);
+//                    displayShow(showId);
                 } catch (IndexOutOfBoundsException iob) {
                     System.out.println("No upcoming shows");
                 }
@@ -147,7 +152,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
             public void actionPerformed(ActionEvent e) {
                 try {
                     setShowId(showId - 1);
-                    displayShow(showId);
+//                    displayShow(showId);
                 } catch (IndexOutOfBoundsException ioe) {
                     System.out.println("No previous shows'");
                 }
@@ -180,40 +185,6 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
                 openDirections(directionsUrl);
             }
         });
-//        kindsComboBox.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                refreshPriceQty();
-//            }
-//        });
-
-//        kindsComboBox.addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                super.mouseClicked(e);
-//                refreshPriceQty();
-//            }
-//        });
-
-//        kindsComboBox.addFocusListener(new FocusAdapter() {
-//            @Override
-//            public void focusGained(FocusEvent e) {
-//                super.focusGained(e);
-//                System.out.println("focused");
-//                selectingKind = true;
-//            }
-//        });
-//        kindsComboBox.addFocusListener(new FocusAdapter() {
-//            @Override
-//            public void focusLost(FocusEvent e) {
-//                super.focusLost(e);
-//                if (selectingKind) {
-//                    System.out.println("unfocused");
-//                    refreshPriceQty();
-//                    selectingKind = false;
-//                }
-//            }
-//        });
         kindsComboBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent event) {
@@ -222,10 +193,102 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
                 }
             }
         });
+        sellButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removeInv();
+            }
+        });
     }
 
     private void createUIComponents() {
     }
+
+////    public void currentVenue() {
+////        Statement statement = null;
+////        Connection conn = null;
+////        ResultSet rs = null;
+////        try {
+////            Class.forName(driver);
+////            conn = DriverManager.getConnection(protocol + dbName + ";create=true;", USER, PASS);
+////            statement = conn.createStatement();
+//////            "CREATE TABLE Shows (ShowDate DATE, VenueName VARCHAR(64), Street VARCHAR(64),\" +\n" +
+//////                    "                        \"City VARCHAR(64), State VARCHAR(64), Country VARCHAR(64), SoldTickets INT, \" +\n" +
+//////                    "                        \"Price INT, TicketFee INT, MerchFee INT, OtherFee INT"
+////            String fetchMerch = "SELECT * FROM Shows";
+//////                    "WHERE S.Date >= '" + timeNow + "' )";
+////            rs = statement.executeQuery(fetchMerch);
+////
+////            while (rs.next()) {
+////
+////                try {
+//////                    String showDate = rs.getString("ShowDate");
+////                    Date showDate = rs.getDate("ShowDate");
+////                    String showDateStr = showDate.toString();
+////                    Date
+////                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+////                    DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+//////                    String showDateStr = df.parse(showDateStr);
+////                    venueDateLabel.setText(showDateStr);
+////                    String venueName = rs.getString("VenueName");
+////                    String city = rs.getString("City");
+////                    String state = rs.getString("State");
+////                    String sold = rs.getString("SoldTickets");
+////                    venueDateLabel.setText(showDateStr);
+////                    venueNameLabel.setText(venueName);
+////                    venueCityLabel.setText(city + ", " + state);
+////                    soldTicketsLabel.setText(sold);
+////                } catch (ParseException pe) {
+////                    pe.printStackTrace();
+////                }
+////
+////            }
+////
+////        } catch (ClassNotFoundException cnf) {
+////            System.out.println("Class not found");
+////        } catch (SQLException se) {
+////            System.out.println("No show inventory exists");
+////        } finally {
+////            try {
+////                if (rs != null) {
+////                    rs.close();
+////                    System.out.println("Result set is closed");
+////                }
+////            } catch (SQLException se) {
+////                se.printStackTrace();
+////            }
+////
+////            try {
+////                if (statement != null) {
+////                    statement.close();
+////                    System.out.println("Statement closed");
+////                }
+////            } catch (SQLException se) {
+////                se.printStackTrace();
+////            }
+////
+////            try {
+////                if (psInsert != null) {
+////                    psInsert.close();
+////                    System.out.println("Prepared statement closed");
+////                }
+////            } catch (SQLException se) {
+////                se.printStackTrace();
+////            }
+//
+//            try {
+//                // If connection is null and finished, gives message
+//                if (conn != null) {
+//                    conn.close();
+//                    System.out.println("Database connection is closed");
+//                }
+//            } catch (SQLException se) {
+//                se.printStackTrace();
+//            }
+//
+//        }
+//    }
+
 
     public void displayShow(int showId) {
         String date = showsModel.getElementAt(showId).getShowDate().toString();
@@ -245,7 +308,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
 
         try {
             String nextDate = showsModel.getElementAt(showId+1).getShowDate().toString();
-            String nextVenueName = showsModel.getElementAt(showId+1).getVenueName().toString();
+            String nextVenueName = showsModel.getElementAt(showId+1).getVenueName();
             TourCatGUI.this.nextShowDateLabel.setText(nextDate);
             TourCatGUI.this.nextShowVenueLabel.setText(nextVenueName);
         } catch (IndexOutOfBoundsException iob) {
@@ -297,6 +360,73 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
 //                } else {
 //
 //                }
+            }
+
+        } catch (ClassNotFoundException cnf) {
+            System.out.println("Class not found");
+        } catch (SQLException se) {
+            System.out.println("No inventory exists");
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                    System.out.println("Result set is closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+            try {
+                if (statement != null) {
+                    statement.close();
+                    System.out.println("Statement closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+//
+//            try {
+//                if (psInsert != null) {
+//                    psInsert.close();
+//                    System.out.println("Prepared statement closed");
+//                }
+//            } catch (SQLException se) {
+//                se.printStackTrace();
+//            }
+
+            try {
+                // If connection is null and finished, gives message
+                if (conn != null) {
+                    conn.close();
+                    System.out.println("Database connection is closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+        }
+    }
+
+    public void removeInv() {
+        Statement statement = null;
+        Connection conn = null;
+        ResultSet rs = null;
+        PreparedStatement psInsert = null;
+        try {
+            String merch = merchComboBox.getSelectedItem().toString();
+            String kind = kindsComboBox.getSelectedItem().toString();
+            int qty = Integer.valueOf(quantityTextField.getText());
+
+            Class.forName(driver);
+            conn = DriverManager.getConnection(protocol + dbName + ";create=true;", USER, PASS);
+            statement = conn.createStatement();
+            String fetchMerch = "SELECT * FROM Merchandise WHERE ItemName = '" + merch + "' AND Kinds = '" + kind + "'";
+            rs = statement.executeQuery(fetchMerch);
+
+            while (rs.next()) {
+                String updateMerch = "UPDATE Merchandise SET Quantity = Quantity - ?";
+                psInsert = conn.prepareStatement(updateMerch);
+                psInsert.setInt(1, qty);
             }
 
         } catch (ClassNotFoundException cnf) {
@@ -443,7 +573,8 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
             String kind = kindsComboBox.getSelectedItem().toString();
 
 
-            String fetchItem = "SELECT ItemName, Sizes,Kinds,Price,Quantity FROM Merchandise WHERE ItemName = '" + merch + "' AND Kinds = '" + kind + "'";
+            String fetchItem = "SELECT ItemName, Sizes,Kinds,Price,Quantity FROM Merchandise WHERE ItemName = '"
+                    + merch + "' AND Kinds = '" + kind + "'";
             rs = statement.executeQuery(fetchItem);
 
 
@@ -452,10 +583,12 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
                 String price = rs.getString("Price");
                 String qty = String.valueOf(rs.getInt("Quantity"));
                 if (!qty.equals(null)) {
-                    // todo make/add to qty int
+                    quantityTextField.setText(qty);
+                } else {
+                    quantityTextField.setText("0");
                 }
                 itemPriceLabel.setText(price);
-                quantityTextField.setText(qty);
+
                 System.out.println(name + " " + price + " " + qty);
             }
 
@@ -502,7 +635,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
         }
         try {
             String date = showsModel.getElementAt(showId).getShowDate().toString();
-            final String venueName = showsModel.getElementAt(showId).getVenueName().toString();
+            final String venueName = showsModel.getElementAt(showId).getVenueName();
             final String venueAddress = showsModel.getElementAt(showId).getStreetName().toString();
             final String venueCity = showsModel.getElementAt(showId).getCityName().toString();
             final String venueState = showsModel.getElementAt(showId).getStateName().toString();

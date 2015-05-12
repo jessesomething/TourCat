@@ -42,7 +42,17 @@ public class Show {
     }
 
     public String getVenueName() {
-        return this.venueName;
+        String s = this.venueName.toString();
+
+        StringBuilder sb = new StringBuilder(s);
+
+        int i = 0;
+        while ((i = sb.indexOf(" ", i + 20)) != -1) {
+            sb.replace(i, i + 1, "<br>");
+        }
+        sb.append("</html>");
+        sb.insert(0, "<html>");
+        return sb.toString();
     }
 
     public void setVenueName(String venueName) {
