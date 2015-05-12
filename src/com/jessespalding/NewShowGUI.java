@@ -286,11 +286,12 @@ public class NewShowGUI extends JFrame {
                 TourCatGUI.setFirstRun(false);
 
             } catch (ArrayIndexOutOfBoundsException aiob) {
-                String[] reqFields = {dateString, time, venue, city, state};
+                String[] reqFields = {dateString, time, venue, address, city, state};
                 LinkedList<JLabel> reqLabels = new LinkedList<JLabel>();
                 reqLabels.add(dateLabel);
                 reqLabels.add(timeLabel);
                 reqLabels.add(venueLabel);
+                reqLabels.add(addressLabel);
                 reqLabels.add(cityLabel);
                 reqLabels.add(stateLabel);
 
@@ -304,11 +305,12 @@ public class NewShowGUI extends JFrame {
                 System.out.println("Didn't enter something");
             }
         } catch (ArrayIndexOutOfBoundsException aiob) {
-            String[] reqFields = {dateString, time, venue, city, state};
+            String[] reqFields = {dateString, time, venue, address, city, state};
             LinkedList<JLabel> reqLabels = new LinkedList<JLabel>();
             reqLabels.add(dateLabel);
             reqLabels.add(timeLabel);
             reqLabels.add(venueLabel);
+            reqLabels.add(addressLabel);
             reqLabels.add(cityLabel);
             reqLabels.add(stateLabel);
 

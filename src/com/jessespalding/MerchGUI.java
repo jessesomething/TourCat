@@ -150,6 +150,7 @@ public class MerchGUI extends JFrame {
         revalidate();
         repaint();
 
+
         saveAndExitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -233,6 +234,7 @@ public class MerchGUI extends JFrame {
 
                     String fetchSizes = "SELECT Sizes FROM Merchandise";
                     rs = statement.executeQuery(fetchSizes);
+
 
                     System.out.println("Sizes in the database: \n");
 

@@ -120,7 +120,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
         while (noShows) {
             // do nothing
             if (noShows = false) {
-//                displayShow(showId);
+                displayShow(showId);
                 break;
             }
         }
@@ -138,7 +138,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
             public void actionPerformed(ActionEvent e) {
                 try {
                     setShowId(showId + 1);
-//                    displayShow(showId);
+                    displayShow(showId);
                 } catch (IndexOutOfBoundsException iob) {
                     System.out.println("No upcoming shows");
                 }
@@ -152,7 +152,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
             public void actionPerformed(ActionEvent e) {
                 try {
                     setShowId(showId - 1);
-//                    displayShow(showId);
+                    displayShow(showId);
                 } catch (IndexOutOfBoundsException ioe) {
                     System.out.println("No previous shows'");
                 }
@@ -292,6 +292,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
 
     public void displayShow(int showId) {
         String date = showsModel.getElementAt(showId).getShowDate().toString();
+        final String venueNameSimple = showsModel.getElementAt(showId).getSimpleVenueName().toString();
         final String venueName = showsModel.getElementAt(showId).getVenueName().toString();
         final String venueAddress = showsModel.getElementAt(showId).getStreetName().toString();
         final String venueCity = showsModel.getElementAt(showId).getCityName().toString();
@@ -304,7 +305,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
         TourCatGUI.this.soldTicketsLabel.setText("Tickets sold: " + venueSold);
 
         directionsUrl = "https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
-                "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs";
+                "&type=establishment" + "&name=" + plusSeparate(venueNameSimple) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs";
 
         try {
             String nextDate = showsModel.getElementAt(showId+1).getShowDate().toString();
@@ -635,6 +636,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
         }
         try {
             String date = showsModel.getElementAt(showId).getShowDate().toString();
+            final String venueNameSimple = showsModel.getElementAt(showId).getSimpleVenueName().toString();
             final String venueName = showsModel.getElementAt(showId).getVenueName();
             final String venueAddress = showsModel.getElementAt(showId).getStreetName().toString();
             final String venueCity = showsModel.getElementAt(showId).getCityName().toString();
@@ -648,7 +650,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
             revalidate();
             repaint();
             directionsUrl = "https://maps.google.com?saddr=Current+Location&daddr=" + searchAddress(venueAddress, venueCity, venueState) +
-                    "&type=establishment" + "&name=" + plusSeparate(venueName) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs";
+                    "&type=establishment" + "&name=" + plusSeparate(venueNameSimple) + "&key=" + "AIzaSyDkzkGyuOsBH7f0zszPFz2htLciSoc0Yjs";
         } catch (IndexOutOfBoundsException iob) {
             System.out.println("No shows to display");
         }

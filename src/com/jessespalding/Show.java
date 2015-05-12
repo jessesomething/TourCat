@@ -55,6 +55,10 @@ public class Show {
         return sb.toString();
     }
 
+    public String getSimpleVenueName() {
+        return this.venueName;
+    }
+
     public void setVenueName(String venueName) {
         this.venueName = venueName;
     }
