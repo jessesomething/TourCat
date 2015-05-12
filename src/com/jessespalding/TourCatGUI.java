@@ -38,7 +38,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
     private JLabel nextShowDateLabel;
     private JButton refreshButton;
     private JComboBox sizeComboBox;
-    private JComboBox comboBox1;
+    private JComboBox kindsComboBox;
     private JLabel itemPriceLabel;
     static JFrame newEventFrame;
 
@@ -48,6 +48,8 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
 
     public static boolean firstRun = true;
     public static boolean noShows = true;
+
+    public static boolean selectingKind = false;
 
     public static void setFirstRun(boolean firstRun) {
         TourCatGUI.firstRun = firstRun;
@@ -122,6 +124,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
         refreshButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 refreshMain();
+                refreshInv();
             }
         });
 
@@ -155,9 +158,11 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
             //todo
             public void itemStateChanged(ItemEvent e) {
                 sizeComboBox.removeAllItems();
-                refreshSizes();
+                refreshMerch();
             }
         });
+
+
 
         rootPanel.addFocusListener(new FocusAdapter() {
             @Override
@@ -173,6 +178,48 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
             @Override
             public void actionPerformed(ActionEvent e) {
                 openDirections(directionsUrl);
+            }
+        });
+//        kindsComboBox.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                refreshPriceQty();
+//            }
+//        });
+
+//        kindsComboBox.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                super.mouseClicked(e);
+//                refreshPriceQty();
+//            }
+//        });
+
+//        kindsComboBox.addFocusListener(new FocusAdapter() {
+//            @Override
+//            public void focusGained(FocusEvent e) {
+//                super.focusGained(e);
+//                System.out.println("focused");
+//                selectingKind = true;
+//            }
+//        });
+//        kindsComboBox.addFocusListener(new FocusAdapter() {
+//            @Override
+//            public void focusLost(FocusEvent e) {
+//                super.focusLost(e);
+//                if (selectingKind) {
+//                    System.out.println("unfocused");
+//                    refreshPriceQty();
+//                    selectingKind = false;
+//                }
+//            }
+//        });
+        kindsComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent event) {
+                if (event.getStateChange() == ItemEvent.SELECTED) {
+                    refreshPriceQty();
+                }
             }
         });
     }
@@ -219,6 +266,10 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
         ResultSet rs = null;
         try {
             merchComboBox.removeAllItems();
+            kindsComboBox.removeAllItems();
+            sizeComboBox.removeAllItems();
+            quantityTextField.removeAll();
+            itemPriceLabel.setText("");
             Class.forName(driver);
             conn = DriverManager.getConnection(protocol + dbName + ";create=true;", USER, PASS);
             statement = conn.createStatement();
@@ -239,7 +290,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
 //                }
 //                System.out.println(priceShort);
                 int qty = rs.getInt("Quantity");
-                merchComboBox.addItem(kinds + " - " + name + " @ $" + price);
+                merchComboBox.addItem(name);
                 merchSizeList.put(name, size);
 //                if (!size.equals("")) {
 //                    sizeComboBox.addItem(size);
@@ -293,7 +344,7 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
         }
     }
 
-    public void refreshSizes() {
+    public void refreshMerch() {
         Statement statement = null;
         Connection conn = null;
         ResultSet rs = null;
@@ -304,29 +355,115 @@ public class TourCatGUI extends JFrame implements WindowFocusListener{
             conn = DriverManager.getConnection(protocol + dbName + ";create=true;", USER, PASS);
             statement = conn.createStatement();
 
-            String fetchMerch = "SELECT * FROM Merchandise";
-            rs = statement.executeQuery(fetchMerch);
+            sizeComboBox.removeAllItems();
+            kindsComboBox.removeAllItems();
+            String merch = "";
+            if (merchComboBox.getSelectedIndex() == -1) {
+            } else {
+                merch = merchComboBox.getSelectedItem().toString();
+            }
+//            String kind = "";
+//            if (kindsComboBox.getSelectedItem().toString().equals("")) {
+//                // do nothing
+//            } else {
+//                kind = kindsComboBox.getSelectedItem().toString();
+//            }
+//            String fetchItem = "SELECT Sizes,Kinds,Price FROM Merchandise WHERE ItemName = '" + merch + "' AND Kinds = '" + kind + "'";
 
-            String merch = merchComboBox.getSelectedItem().toString();
+            String fetchItem = "SELECT Sizes,Kinds,Price FROM Merchandise WHERE ItemName = '" + merch + "'";
+            rs = statement.executeQuery(fetchItem);
+
 
             while (rs.next()) {
-                String name = rs.getString("ItemName");
-                String kinds = rs.getString("Kinds");
+                String kindAdd = rs.getString("Kinds");
                 String price = rs.getString("Price");
-                PreparedStatement ps = conn.prepareStatement("SELECT Sizes FROM Merchandise WHERE ItemName = ?");
-                ps.setString(1, name);
                 String size = rs.getString("Sizes");
-                if (merch == kinds + " - " + name + " @ $" + price || !size.equals("")) {
+                if (!size.equals(null)) {
                     sizeComboBox.addItem(size);
-                } else {
-
                 }
+                kindsComboBox.addItem(kindAdd);
+                itemPriceLabel.setText(price);
             }
 
         } catch (ClassNotFoundException cnf) {
             System.out.println("Class not found");
         } catch (SQLException se) {
             System.out.println("No inventory exists");
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                    System.out.println("Result set is closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+            try {
+                if (statement != null) {
+                    statement.close();
+                    System.out.println("Statement closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+            try {
+                // If connection is null and finished, gives message
+                if (conn != null) {
+                    conn.close();
+                    System.out.println("Database connection is closed");
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
+        }
+    }
+
+    public void refreshPriceQty() {
+        Statement statement = null;
+        Connection conn = null;
+        ResultSet rs = null;
+//        PreparedStatement psInsert = null;
+
+        try {
+
+            System.out.println("refreshing price and qty");
+            Class.forName(driver);
+            conn = DriverManager.getConnection(protocol + dbName + ";create=true;", USER, PASS);
+            statement = conn.createStatement();
+
+            String merch = "";
+            if (merchComboBox.getSelectedIndex() == -1) {
+                // do nothing
+            } else {
+                merch = merchComboBox.getSelectedItem().toString();
+            }
+            String kind = kindsComboBox.getSelectedItem().toString();
+
+
+            String fetchItem = "SELECT ItemName, Sizes,Kinds,Price,Quantity FROM Merchandise WHERE ItemName = '" + merch + "' AND Kinds = '" + kind + "'";
+            rs = statement.executeQuery(fetchItem);
+
+
+            while (rs.next()) {
+                String name = rs.getString("ItemName");
+                String price = rs.getString("Price");
+                String qty = String.valueOf(rs.getInt("Quantity"));
+                if (!qty.equals(null)) {
+                    // todo make/add to qty int
+                }
+                itemPriceLabel.setText(price);
+                quantityTextField.setText(qty);
+                System.out.println(name + " " + price + " " + qty);
+            }
+
+        } catch (ClassNotFoundException cnf) {
+            System.out.println("Class not found");
+        } catch (SQLException se) {
+            System.out.println("SQL Exception Error");
+            se.printStackTrace();
         } finally {
             try {
                 if (rs != null) {
