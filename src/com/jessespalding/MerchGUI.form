@@ -111,7 +111,7 @@
           </grid>
         </constraints>
         <properties>
-          <text value="Price"/>
+          <text value="Price ($)"/>
         </properties>
       </component>
       <component id="f85a0" class="javax.swing.JLabel" binding="otherKindLabel">

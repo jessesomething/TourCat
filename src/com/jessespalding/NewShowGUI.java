@@ -57,8 +57,7 @@ public class NewShowGUI extends JFrame {
     private JButton startOverButton;
     private JButton nextSuggestionButton;
 
-    DateFormat format = new SimpleDateFormat("mm/dd/yyyyh:mma", Locale.ENGLISH);
-
+    DateFormat format = new SimpleDateFormat("MM/dd/yyyyh:mma", Locale.ENGLISH);
 
     String dateString = "";
     String time = "";
@@ -201,6 +200,7 @@ public class NewShowGUI extends JFrame {
                 saveVenue();
 //                saveShowDb();
                 if (saved) {
+
                     dispose();
                 }
             }
@@ -280,46 +280,18 @@ public class NewShowGUI extends JFrame {
                     TourCatGUI.setNoShows(false);
                     saved = true;
                 } catch (ParseException pe) {
+                    missingField();
                     System.out.println("Error parsing date");
                     pe.printStackTrace();
                 }
                 TourCatGUI.setFirstRun(false);
 
             } catch (ArrayIndexOutOfBoundsException aiob) {
-                String[] reqFields = {dateString, time, venue, address, city, state};
-                LinkedList<JLabel> reqLabels = new LinkedList<JLabel>();
-                reqLabels.add(dateLabel);
-                reqLabels.add(timeLabel);
-                reqLabels.add(venueLabel);
-                reqLabels.add(addressLabel);
-                reqLabels.add(cityLabel);
-                reqLabels.add(stateLabel);
-
-                for (int i = 0; i < reqFields.length; i++) {
-                    if (reqFields[i].isEmpty() || reqFields[i].equals("")) {
-                        missingLabel.setVisible(true);
-                        reqLabels.get(i).setForeground(Color.red);
-                    }
-                }
                 aiob.printStackTrace();
                 System.out.println("Didn't enter something");
             }
         } catch (ArrayIndexOutOfBoundsException aiob) {
-            String[] reqFields = {dateString, time, venue, address, city, state};
-            LinkedList<JLabel> reqLabels = new LinkedList<JLabel>();
-            reqLabels.add(dateLabel);
-            reqLabels.add(timeLabel);
-            reqLabels.add(venueLabel);
-            reqLabels.add(addressLabel);
-            reqLabels.add(cityLabel);
-            reqLabels.add(stateLabel);
-
-            for (int i = 0; i < reqFields.length; i++) {
-                if (reqFields[i].isEmpty() || reqFields[i].equals("")) {
-                    missingLabel.setVisible(true);
-                    reqLabels.get(i).setForeground(Color.red);
-                }
-            }
+            missingField();
         }
 
     }
@@ -524,6 +496,24 @@ public class NewShowGUI extends JFrame {
 
     private static void addShow(DefaultListModel<Show> shows, Show newShow) {
         shows.addElement(newShow);
+    }
+
+    public void missingField() {
+        String[] reqFields = {dateString, time, venue, address, city, state};
+        LinkedList<JLabel> reqLabels = new LinkedList<JLabel>();
+        reqLabels.add(dateLabel);
+        reqLabels.add(timeLabel);
+        reqLabels.add(venueLabel);
+        reqLabels.add(addressLabel);
+        reqLabels.add(cityLabel);
+        reqLabels.add(stateLabel);
+
+        for (int i = 0; i < reqFields.length; i++) {
+            if (reqFields[i].isEmpty() || reqFields[i].equals("")) {
+                missingLabel.setVisible(true);
+                reqLabels.get(i).setForeground(Color.red);
+            }
+        }
     }
 
     private static String getAddressPart(String address, int element) {

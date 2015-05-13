@@ -5,6 +5,7 @@ import java.util.Date;
 
 /**
  * Created by Jesse on 4/23/2015.
+ * Show class constructor
  */
 public class Show {
     protected Date showDate;
@@ -24,6 +25,7 @@ public class Show {
 
     protected final static double EVENT_FINISHED = -1;
 
+    // parameters for show object
     public Show(Date date, String time, String venueName, String streetName, String cityName, String stateName,
                  String contact, double price, int soldTickets, int ticketFee, int merchFee,
                  int otherFee) {
@@ -41,6 +43,7 @@ public class Show {
         this.otherFee = otherFee;
     }
 
+    // venue name to be displayed on GUI w/ <br> function
     public String getVenueName() {
         String s = this.venueName.toString();
 
@@ -55,6 +58,7 @@ public class Show {
         return sb.toString();
     }
 
+    //returns the full venue name for sql calls
     public String getSimpleVenueName() {
         return this.venueName;
     }
@@ -87,6 +91,8 @@ public class Show {
         this.stateName = stateName;
     }
 
+    // formats date for GUI display
+    // todo make actual getDate for sql calls
     public String getShowDate() {
         SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd hh:mmaa zzz");
         String dateFormatted = format.format(showDate);
